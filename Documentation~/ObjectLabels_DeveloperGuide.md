@@ -10,10 +10,20 @@ Object Labels のラベルシステムを利用してエディタ拡張やツー
 
 ## 導入方法
 
+### UPM (Git URL)
+
 Unity Package Manager で以下の git URL を指定してください:
 
 ```
 https://github.com/mugisennin/object-labels.git
+```
+
+### VCC (VRChat Creator Companion)
+
+VCC の Settings > Packages > 「Add Repository」で以下の URL を追加してください:
+
+```
+https://mugisennin.github.io/vpm-listing/index.json
 ```
 
 ---
@@ -24,7 +34,7 @@ https://github.com/mugisennin/object-labels.git
 com.mugisennin.object-labels/
 ├── package.json
 ├── Runtime/
-│   ├── Mugisennin.ObjectLabels.Runtime.asmdef
+│   ├── Mugisennin.ObjectLabels.asmdef
 │   └── ObjectLabels.cs              # MonoBehaviour（ランタイム・エディタ共通）
 ├── Editor/
 │   ├── Mugisennin.ObjectLabels.Editor.asmdef
@@ -48,7 +58,7 @@ com.mugisennin.object-labels/
 
 本パッケージの API を利用するスクリプトでは、asmdef の参照が必要です:
 
-- **ランタイムスクリプト** → `Mugisennin.ObjectLabels.Runtime` を参照
+- **ランタイムスクリプト** → `Mugisennin.ObjectLabels` を参照
 - **エディタスクリプト** → `Mugisennin.ObjectLabels.Editor` を参照（`LabelSettings` を使う場合）
 
 asmdef を使用していないスクリプト（`Assets/` 直下など）からは、参照設定なしで `ObjectLabels` を利用できます。
@@ -287,3 +297,6 @@ if (GetComponent<ObjectLabels>().HasLabel(LabelSlotConstants.Enemy))
 - プロジェクト間でラベル定義を共有するには **Label Manager の Export/Import 機能** を使用してください
 - アセットのインポートがラベル定義より先に行われた場合、コンポーネント上では一時的に `(undefined)` と表示されますが、ラベル定義をインポートすれば解消されます
 - Label Manager ウィンドウでは、未定義スロットがシーン内で使用されている場合に警告が表示されます
+
+### .meta ファイルについて
+パッケージのリリース zip には必ず `.meta` ファイルを含めてください。Unity はコンポーネントの参照を `.meta` 内の GUID で管理するため、`.meta` ファイルが欠けるとバージョンアップ時に Script Missing が発生します。本パッケージでは GitHub Actions ワークフローで自動的に `.meta` ファイル込みの zip が生成されます。
