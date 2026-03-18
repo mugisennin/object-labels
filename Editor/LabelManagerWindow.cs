@@ -212,7 +212,7 @@ public class LabelManagerWindow : EditorWindow
 
         if (_importData.Count == 0)
         {
-            EditorUtility.DisplayDialog("Import", "No valid label entries found in the file.", "OK");
+            EditorUtility.DisplayDialog("インポート", "有効なラベルデータが見つかりませんでした。", "OK");
             return;
         }
 
@@ -240,7 +240,7 @@ public class LabelManagerWindow : EditorWindow
                         currentName = currentName,
                         importName = kvp.Value,
                         useImport = false,
-                        resolved = false,
+                        resolved = true,
                     });
                 }
                 // Same name on same slot → no conflict, just skip
@@ -286,9 +286,9 @@ public class LabelManagerWindow : EditorWindow
 
     private void DrawImportView()
     {
-        EditorGUILayout.LabelField("Import Labels", EditorStyles.boldLabel);
-        EditorGUILayout.LabelField($"File: {_importPath}");
-        EditorGUILayout.LabelField($"Entries: {_importData.Count}");
+        EditorGUILayout.LabelField("ラベルのインポート", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField($"ファイル: {_importPath}");
+        EditorGUILayout.LabelField($"エントリ数: {_importData.Count}");
         EditorGUILayout.Space(4);
 
         _importScrollPos = EditorGUILayout.BeginScrollView(_importScrollPos);
@@ -296,25 +296,25 @@ public class LabelManagerWindow : EditorWindow
         // Show conflicts
         if (_conflicts.Count > 0)
         {
-            EditorGUILayout.LabelField("Slot Conflicts", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("スロットの競合", EditorStyles.boldLabel);
             EditorGUILayout.HelpBox(
-                "The following slots have different names in the current project and the import file. Choose which to keep for each.",
+                "以下のスロットは、現在のプロジェクトとインポートファイルで異なる名前が設定されています。それぞれどちらを使用するか選択してください。",
                 MessageType.Warning);
 
             foreach (var conflict in _conflicts)
             {
                 EditorGUILayout.BeginVertical(EditorStyles.helpBox);
-                EditorGUILayout.LabelField($"Slot [{conflict.slot}]", EditorStyles.boldLabel);
+                EditorGUILayout.LabelField($"スロット [{conflict.slot}]", EditorStyles.boldLabel);
 
                 EditorGUILayout.BeginHorizontal();
 
                 bool keepCurrent = !conflict.useImport;
                 bool newKeepCurrent = EditorGUILayout.ToggleLeft(
-                    $"Keep: \"{conflict.currentName}\" (current)", keepCurrent);
+                    $"現在の名前を維持: \"{conflict.currentName}\"", keepCurrent);
 
                 bool useImport = conflict.useImport;
                 bool newUseImport = EditorGUILayout.ToggleLeft(
-                    $"Use: \"{conflict.importName}\" (import)", useImport);
+                    $"インポート側を使用: \"{conflict.importName}\"", useImport);
 
                 // Toggle logic: clicking one deselects the other
                 if (newKeepCurrent != keepCurrent && newKeepCurrent)
@@ -332,7 +332,7 @@ public class LabelManagerWindow : EditorWindow
 
                 if (!conflict.resolved)
                 {
-                    EditorGUILayout.LabelField("← Please select one", EditorStyles.miniLabel);
+                    EditorGUILayout.LabelField("← どちらかを選択してください", EditorStyles.miniLabel);
                 }
 
                 EditorGUILayout.EndVertical();
@@ -344,7 +344,7 @@ public class LabelManagerWindow : EditorWindow
         if (_duplicateNameWarnings.Count > 0)
         {
             EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField("Duplicate Name Warnings", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField("名前の重複", EditorStyles.boldLabel);
             foreach (var warning in _duplicateNameWarnings)
             {
                 EditorGUILayout.HelpBox(warning, MessageType.Warning);
@@ -358,7 +358,7 @@ public class LabelManagerWindow : EditorWindow
         if (additions.Count > 0)
         {
             EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField($"New Labels ({additions.Count})", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"新規追加 ({additions.Count})", EditorStyles.boldLabel);
             foreach (var kvp in additions)
             {
                 EditorGUILayout.LabelField($"  [{kvp.Key}] {kvp.Value}");
@@ -372,7 +372,7 @@ public class LabelManagerWindow : EditorWindow
         if (matching.Count > 0)
         {
             EditorGUILayout.Space(4);
-            EditorGUILayout.LabelField($"Already Matching ({matching.Count})", EditorStyles.boldLabel);
+            EditorGUILayout.LabelField($"一致済み ({matching.Count})", EditorStyles.boldLabel);
             foreach (var kvp in matching)
             {
                 EditorGUILayout.LabelField($"  [{kvp.Key}] {kvp.Value}");
@@ -388,7 +388,7 @@ public class LabelManagerWindow : EditorWindow
         bool allResolved = _conflicts.All(c => c.resolved);
 
         EditorGUI.BeginDisabledGroup(!allResolved);
-        if (GUILayout.Button("Apply Import", GUILayout.Height(30)))
+        if (GUILayout.Button("インポートを適用", GUILayout.Height(30)))
         {
             ApplyImport();
         }
@@ -396,10 +396,10 @@ public class LabelManagerWindow : EditorWindow
 
         if (!allResolved)
         {
-            EditorGUILayout.HelpBox("Resolve all conflicts first.", MessageType.Info);
+            EditorGUILayout.HelpBox("すべての競合を解決してください。", MessageType.Info);
         }
 
-        if (GUILayout.Button("Cancel", GUILayout.Height(30), GUILayout.Width(80)))
+        if (GUILayout.Button("キャンセル", GUILayout.Height(30), GUILayout.Width(80)))
         {
             CancelImport();
         }
@@ -439,8 +439,8 @@ public class LabelManagerWindow : EditorWindow
             !_conflicts.Any(c => c.slot == kvp.Key) && LabelSettings.GetName(kvp.Key) == kvp.Value);
         int conflictsResolved = _conflicts.Count;
 
-        EditorUtility.DisplayDialog("Import Complete",
-            $"Import applied.\nNew labels added: {_importData.Count(kvp => !_conflicts.Any(c => c.slot == kvp.Key))}\nConflicts resolved: {conflictsResolved}",
+        EditorUtility.DisplayDialog("インポート完了",
+            $"インポートを適用しました。\n新規追加: {_importData.Count(kvp => !_conflicts.Any(c => c.slot == kvp.Key))} 件\n競合解決: {conflictsResolved} 件",
             "OK");
 
         CancelImport();

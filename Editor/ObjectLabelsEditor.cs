@@ -105,6 +105,12 @@ public class ObjectLabelsEditor : Editor
                 MessageType.Warning);
         }
 
+        EditorGUILayout.Space(4);
+        if (GUILayout.Button("Open Label Manager"))
+        {
+            LabelManagerWindow.ShowWindow();
+        }
+
         serializedObject.ApplyModifiedProperties();
     }
 }
