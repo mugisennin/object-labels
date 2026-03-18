@@ -1,6 +1,6 @@
 {
   "name": "com.mugisennin.object-labels",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "Object Labels",
   "description": "A label system for managing and searching GameObjects in the Unity Editor. Supports multiple labels per object, slot-based management, and import/export for cross-project sharing.",
   "unity": "2022.3",
